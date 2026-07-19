@@ -475,6 +475,7 @@
     transition: all .25s;
   }
   .chip.on { opacity: 1; background: rgba(201,161,90,.16); box-shadow: 0 0 10px rgba(201,161,90,.25); }
+  button[disabled] { opacity: .22 !important; pointer-events: none; box-shadow: none !important; }
   .heat-box { margin: 6px 0 16px; }
   .heat-title, .own-title { font-size: 12px; letter-spacing: 4px; color: var(--gold); opacity: .8; margin-bottom: 8px; text-align: center; }
   .own-box { margin: 16px auto 6px; max-width: 440px; }
@@ -1004,6 +1005,8 @@ function shuffle(a) {
 const stage = document.getElementById("stage");
 
 function renderStart() {
+  const locked = !P;
+  const dis = locked ? " disabled" : "";
   stage.innerHTML = `
     <div class="intro">
       一局一世界。<br>
@@ -1012,19 +1015,24 @@ function renderStart() {
       走到某一签，天意会自己转弯——<br>
       道具赐下之时，便是我们退场之刻。🙈
     </div>
+    ${locked ? `
+    <div class="btn-row" style="margin-bottom:4px">
+      <button class="gold" onclick="showSetup()">先 立 偏 好 · 再 开 签 筒</button>
+    </div>
+    <div class="note">头一回登门，先把称呼和口味告诉签筒——<br>雷点排掉、萌点加倍，签才认得你们<br>（之后随时可回「偏 好」重改）</div>` : ""}
     <div class="heat-box">
       <div class="heat-title">火 力 档 位</div>
       <div class="btn-row" style="margin-bottom:2px">
-        <button class="chip${heatPref()==="veil" ? " on" : ""}" onclick="setHeat('veil')">帐幔档 · 门内留白</button>
-        <button class="chip${heatPref()==="raw" ? " on" : ""}" onclick="setHeat('raw')">原义档 · 直书其事</button>
-        <button class="chip${heatPref()==="max" ? " on" : ""}" onclick="setHeat('max')">火力全开 · 不设上限</button>
+        <button class="chip${heatPref()==="veil" ? " on" : ""}" onclick="setHeat('veil')"${dis}>帐幔档 · 门内留白</button>
+        <button class="chip${heatPref()==="raw" ? " on" : ""}" onclick="setHeat('raw')"${dis}>原义档 · 直书其事</button>
+        <button class="chip${heatPref()==="max" ? " on" : ""}" onclick="setHeat('max')"${dis}>火力全开 · 不设上限</button>
       </div>
     </div>
     <div class="btn-row">
-      <button class="gold" onclick="startGame()">起 局</button>${loadSaga() ? `
-      <button class="gold" onclick="continueSaga()">续 前 卷 ·〔${loadSaga().title}〕</button>` : ""}
-      <button class="ghost" onclick="openArchive()">往局回顾</button>
-      <button class="ghost" onclick="showSetup()">偏 好</button>
+      <button class="gold" onclick="startGame()"${dis}>起 局</button>${loadSaga() ? `
+      <button class="gold" onclick="continueSaga()"${dis}>续 前 卷 ·〔${loadSaga().title}〕</button>` : ""}
+      <button class="ghost" onclick="openArchive()"${dis}>往局回顾</button>
+      <button class="ghost" onclick="showSetup()"${dis}>偏 好</button>
     </div>`;
 }
 
@@ -1464,7 +1472,8 @@ addEventListener("pagehide", hushBgm);
 function openCard() {
   localStorage.setItem("qyq_uni_card_seen", "1");
   document.getElementById("birthdayCard").classList.add("gone");
-  ensureAudio();   /* 启签这一下正是手势，乐声随扉页揭开同时浮起 */
+  ensureAudio();
+  if (!P) setTimeout(showSetup, 450);   /* 启签这一下正是手势，乐声随扉页揭开同时浮起 */
 }
 
 /* ═══════════ 长篇模式：留灯续卷 ═══════════ */
